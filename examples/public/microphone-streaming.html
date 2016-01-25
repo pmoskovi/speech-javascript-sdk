@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watson Speech to Text client example</title>
+</head>
+<body>
+
+<section>
+    <h2>Transcribe from Microphone</h2>
+    <button id="button">Start Microphone Transcription</button>
+    <button id="stop">Stop</button>
+
+    <h2>Output:</h2>
+    <div id="output">--</div>
+</section>
+
+<script src="watson-speech-to-text.js"></script>
+<script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+
+<h2>Code for this demo:</h2>
+
+<pre><code><script style="display: block;">
+$(function() {
+    var $output = $('#output');
+
+    $('#button').click(function () {
+        $output.html('');
+
+        $.get('/token').then(function (token) {
+            var stream = WatsonSpeechToText.stream({
+                token: token
+            });
+
+            // each result (sentence) gets it's own <span> because Watson will sometimes go back and change a word as it hears more context
+            var $curSentence = $('<span>&nbsp;</span>').appendTo($output);
+
+            // a result is approximately equivalent to a sentence
+            stream.on('result', function(result) {
+                // update the text for the current sentence with the default alternative.
+                // there may be multiple alternatives but this example app ignores all but the first.
+                $curSentence.html(result.alternatives[0].transcript);
+                if (result.final) {
+                    // if we have the final text for that sentence, start a new one
+                    $curSentence = $('<span/>').appendTo($output);
+                }
+            });
+
+            stream.on('error', function(err) {
+                console.log(err);
+            });
+
+            $('#stop').off().click(function() {
+                stream.stop();
+            });
+        });
+    });
+});
+</script></code></pre>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Promise Example - Watson Speech to Text</title>
+</head>
+<body>
+
+<section>
+    <h2>Transcribe File, Streaming</h2>
+    <input type="file" id="audiofile"> <button id="button">Transcribe and Play</button>
+    <p><small><i>Supported types are wav, ogg/opus (not ogg/vorbis), and flac. However, most browsers do not support flac.</i></small></p>
+
+    <h2>Output:</h2>
+    <div id="output">--</div>
+</section>
+
+<script src="watson-speech-to-text.js"></script>
+<script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+<h2>Code for this demo:</h2>
+<pre><code><script style="display: block;">
+$(function() {
+    var $output = $('#output');
+
+    $('#button').click(function () {
+        $.get('/token').then(function (token) {
+            $output.html('');
+
+            var stream = WatsonSpeechToText.stream({
+                token: token,
+                file: $('#audiofile')[0],
+                playFile: true
+            });
+
+            // todo: flow control so that words appear approximately when played
+
+            // each result (sentence) gets it's own <span> because watson will sometimes go back and change a word as it hears more context
+            var $curSentence = $('<span>&nbsp;</span>').appendTo($output);
+
+            // put the stream in flowing mode
+            stream.on('data', function(){});
+
+            // a result is approximately equivalent to a sentence
+            stream.on('result', function(result) {
+                // update the text for the current sentence with the default alternative.
+                // there may be multiple alternatives but this example app ignores all but the first.
+                $curSentence.html(result.alternatives[0].transcript);
+                if (result.final) {
+                    // if we have the final text for that sentence, start a new one
+                    $curSentence = $('<span/>').appendTo($output);
+                }
+            });
+
+            stream.on('error', function(err) {
+                console.log(err);
+            });
+
+            stream.on('playback-error', function(err) {
+                console.log(err);
+            });
+        });
+    });
+});
+</script></code></pre>
+</body>
+</html>

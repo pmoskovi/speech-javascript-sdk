@@ -61,14 +61,15 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome_without_prerecorded_mic'],
+    browsers: ['ChromeWithPrerecordedMic'],
 
     // you can define custom flags
     // there's a handy list of chrome flags at
     customLaunchers: {
-      Chrome_without_prerecorded_mic: {
+      ChromeWithPrerecordedMic: {
         base: 'Chrome',
-        flags: ['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream', '--use-file-for-fake-audio-capture=test/resources/audio.wav']
+        // --no-sandbox is required for travis-ci
+        flags: ['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream', '--use-file-for-fake-audio-capture=test/resources/audio.wav', '--no-sandbox']
       }
     },
 
@@ -87,7 +88,7 @@ module.exports = function(config) {
       port: 9877,
       // this function takes express app object and allows you to modify it
       // to your liking. For more see http://expressjs.com/4x/api.html
-      appVisitor: (process.env.TEST_MODE=='integration') ? require('./test/resources/integration_test_server.js') : require('./test/resources/offline_test_server.js')
+      appVisitor: (process.env.TEST_MODE === 'integration') ? require('./test/resources/integration_test_server.js') : require('./test/resources/offline_test_server.js')
     }
-  })
+  });
 };

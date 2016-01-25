@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Promise Example - Watson Speech to Text</title>
+</head>
+<body>
+
+    <section>
+        <h1>Transcribe File</h1>
+        <input type="file" id="audiofile"> <button id="button">Transcribe</button>
+        <p><small><i>Supported types are wav, ogg/opus (not ogg/vorbis), and flac.</i></small></p>
+
+        <h2>Output:</h2>
+        <div id="output">--</div>
+    </section>
+
+    <script src="watson-speech-to-text.js"></script>
+    <script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+    <h2>Code for this demo:</h2>
+<pre><code><script style="display: block;">
+$(function() {
+    var $output = $('#output');
+
+    $('#button').click(function () {
+        $.get('/token').then(function (token) {
+            $output.html('Processing...');
+
+            WatsonSpeechToText.promise({
+                token: token,
+                file: $('#audiofile')[0]
+            })
+            .then(WatsonSpeechToText.resultsToText) // turn the collection of results into a string of text
+            .then(function(text) {
+                $output.text(text);
+            }).catch(function(err) {
+                console.log(err);
+                $output.text(err.message);
+            });
+        });
+    });
+});
+</script></code></pre>
+</body>
+</html>
